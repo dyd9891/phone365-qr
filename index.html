@@ -24,7 +24,7 @@ input,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:11px
 .btn{width:100%;border:0;background:#e9165b;color:#fff;border-radius:12px;padding:15px;font-size:17px;font-weight:900;cursor:pointer}
 .btn:disabled{opacity:.6}
 .muted{color:#6b7280;font-size:12px;line-height:1.55}
-.footer{text-align:center;font-size:11px;color:#94a3b8;padding:6px 0 18px}
+.footer{text-align:center;font-size:11px;color:#94a3b8;padding:6px 0 18px}.status{display:none;text-align:center}.status .icon{font-size:52px}.status h2{font-size:23px}.status .msg{font-weight:800;line-height:1.6;margin:12px 0}.status.show{display:block}
 </style>
 </head>
 <body>
@@ -35,8 +35,8 @@ input,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:11px
     <div id="campaignLabel" class="campaign"></div>
   </div>
 
-  <!-- 모바일 안정성을 위해 POST/AJAX/JSONP를 쓰지 않고 일반 GET 폼으로 전송 -->
-  <form id="regForm" method="get" action="https://script.google.com/macros/s/AKfycbwtQztVKyWqcQd3hCgiySZkJDhvgCsMDCYajt0B4FOowb1znjJE3Bk9oWDABJCL2yYB/exec">
+  <!-- Apps Script JSONP 등록: 페이지 이동 없이 결과를 현재 화면에 표시 -->
+  <form id="regForm">
     <input type="hidden" name="action" value="register">
     <input type="hidden" name="campaign" id="campaignField">
     <input type="hidden" name="source" id="sourceField">
@@ -97,10 +97,25 @@ input,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:11px
     </div>
   </form>
 
+  <div id="successCard" class="card status">
+    <div class="icon">✅</div>
+    <h2>등록 완료</h2>
+    <div id="successMsg" class="msg">등록이 완료되었습니다.</div>
+    <p>직원에게 이 화면을 보여주세요.</p>
+  </div>
+
+  <div id="duplicateCard" class="card status">
+    <div class="icon">📌</div>
+    <h2>이미 등록된 번호입니다</h2>
+    <div id="duplicateMsg" class="msg">이미 이 행사에 등록된 번호입니다.</div>
+    <p>직원에게 이 화면을 보여주세요.</p>
+  </div>
+
   <div class="footer">휴대폰365아울렛 제천점 · 충북 제천시 청전대로 159</div>
 </div>
 
 <script>
+const BACKEND_URL='https://script.google.com/macros/s/AKfycbwtQztVKyWqcQd3hCgiySZkJDhvgCsMDCYajt0B4FOowb1znjJE3Bk9oWDABJCL2yYB/exec';
 const params=new URLSearchParams(location.search);
 const campaign=params.get('campaign')||'당근 충전기 나눔';
 const source=params.get('source')||'당근';
@@ -110,17 +125,99 @@ document.getElementById('campaignField').value=campaign;
 document.getElementById('sourceField').value=source;
 
 function normalizePhone(v){ return String(v||'').replace(/\D/g,''); }
+function resetButton(){
+  const b=document.getElementById('submitBtn');
+  b.disabled=false;
+  b.textContent='등록하기';
+}
+function showResult(type,message){
+  document.getElementById('regForm').style.display='none';
+  if(type==='success'){
+    document.getElementById('successMsg').textContent=message||'등록이 완료되었습니다.';
+    document.getElementById('successCard').classList.add('show');
+  }else{
+    document.getElementById('duplicateMsg').textContent=message||'이미 이 행사에 등록된 번호입니다.';
+    document.getElementById('duplicateCard').classList.add('show');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function submitJsonp(payload){
+  const cb='phone365_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const u=new URL(BACKEND_URL);
+  u.searchParams.set('action','register');
+  u.searchParams.set('callback',cb);
+  Object.entries(payload).forEach(([k,v])=>u.searchParams.set(k,String(v)));
+
+  const s=document.createElement('script');
+  let finished=false;
+  const done=()=>{
+    if(s.parentNode)s.parentNode.removeChild(s);
+    try{delete window[cb]}catch(e){window[cb]=undefined}
+  };
+
+  window[cb]=function(r){
+    finished=true;
+    clearTimeout(timer);
+    done();
+    resetButton();
+    r=r||{};
+    if(r.ok) return showResult('success',r.message);
+    if(r.duplicate) return showResult('duplicate',r.message);
+    alert(r.message||'등록에 실패했습니다. 직원에게 문의해주세요.');
+  };
+
+  s.onerror=function(){
+    if(finished)return;
+    finished=true;
+    clearTimeout(timer);
+    done();
+    resetButton();
+    alert('등록 서버 응답을 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.');
+  };
+
+  const timer=setTimeout(function(){
+    if(finished)return;
+    finished=true;
+    done();
+    resetButton();
+    alert('등록 서버 응답 시간이 초과되었습니다. 직원에게 문의해주세요.');
+  },15000);
+
+  s.src=u.toString();
+  document.body.appendChild(s);
+}
 
 document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+
+  const name=document.getElementById('name').value.trim();
   const phone=document.getElementById('phone').value.trim();
+  const carrier=document.getElementById('carrier').value;
+  const privacy=document.getElementById('privacy').checked;
+  const sms=document.getElementById('sms').checked;
+  const call=document.getElementById('call').checked;
+
+  if(!name){ alert('성함을 입력해주세요.'); return; }
   if(!/^01\d{8,9}$/.test(normalizePhone(phone))){
-    e.preventDefault();
     alert('휴대전화번호를 정확히 입력해주세요.');
     return;
   }
+  if(!privacy){ alert('필수 개인정보 수집·이용 동의가 필요합니다.'); return; }
+
   const b=document.getElementById('submitBtn');
   b.disabled=true;
   b.textContent='등록 중...';
+
+  submitJsonp({
+    name:name,
+    phone:phone,
+    carrier:carrier,
+    campaign:campaign,
+    source:source,
+    privacyConsent:privacy?'Y':'N',
+    smsConsent:sms?'Y':'N',
+    callConsent:call?'Y':'N'
+  });
 });
 </script>
 </body>
