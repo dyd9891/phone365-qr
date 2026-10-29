@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>휴대폰365아울렛 제천점 · 무료나눔 고객등록</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#111827;font-family:Arial,"Noto Sans KR","Malgun Gothic",sans-serif}
+.wrap{max-width:540px;margin:auto;padding:16px}
+.head{background:#071b36;color:#fff;border-radius:20px;padding:22px;margin:4px 0 14px;box-shadow:0 8px 25px #071b3620}
+.brand{color:#ff2b73}
+.head h1{font-size:23px;margin:0 0 7px} .head .event{font-weight:900;font-size:18px} .campaign{font-size:12px;color:#cbd5e1;margin-top:7px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:17px;padding:18px;margin-bottom:12px;box-shadow:0 2px 10px #00000009}
+h2{font-size:17px;margin:0 0 12px}
+label{font-size:13px;font-weight:900;display:block;margin:12px 0 6px}
+input,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:11px;font-size:16px;background:#fff}
+input:focus,select:focus{outline:2px solid #f9a8c4;border-color:#e9165b}
+.check{display:flex;gap:10px;align-items:flex-start;margin:13px 0}
+.check input{width:21px;height:21px;flex:0 0 auto;margin:1px 0 0}
+.check label{margin:0;font-weight:800;line-height:1.45}
+.detail{font-size:12px;color:#6b7280;line-height:1.6;background:#f8fafc;border-radius:10px;padding:11px;margin-top:7px}
+.btn{width:100%;border:0;background:#e9165b;color:white;border-radius:12px;padding:15px;font-size:17px;font-weight:900;cursor:pointer}
+.btn:disabled{opacity:.6}
+.muted{color:#6b7280;font-size:12px;line-height:1.55}
+.status{display:none;text-align:center;padding:30px 16px}
+.status .icon{font-size:48px;margin-bottom:8px}
+.status h2{font-size:22px}
+.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.footer{text-align:center;font-size:11px;color:#94a3b8;padding:6px 0 18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>휴대폰 <span class="brand">365</span>아울렛 제천점</h1>
+    <div class="event">가정용 충전기 무료나눔 고객등록</div>
+    <div id="campaignLabel" class="campaign"></div>
+  </div>
+
+  <div id="formArea">
+    <div class="card">
+      <h2>기본정보</h2>
+      <label for="name">성함 *</label>
+      <input id="name" autocomplete="name" placeholder="성함">
+      <label for="phone">휴대전화번호 *</label>
+      <input id="phone" inputmode="tel" autocomplete="tel" placeholder="010-1234-5678">
+      <label for="carrier">현재 통신사 <span class="muted">(선택)</span></label>
+      <select id="carrier">
+        <option value="">선택 안 함</option><option>SKT</option><option>KT</option><option>LG U+</option><option>알뜰폰</option><option>기타</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h2>개인정보 및 안내 수신 동의</h2>
+      <div class="check"><input type="checkbox" id="privacy"><label for="privacy">[필수] 무료나눔 참여를 위한 개인정보 수집·이용에 동의합니다.</label></div>
+      <div class="detail">수집 목적: 무료나눔 참여 확인, 중복수령 확인 및 행사 운영<br>수집 항목: 성명, 휴대전화번호<br>보유기간: 등록일로부터 3개월 후 파기<br>동의를 거부할 수 있으나 필수정보 동의 없이는 무료나눔 참여가 어렵습니다.</div>
+      <div class="check"><input type="checkbox" id="sms"><label for="sms">[선택] 휴대폰·인터넷·TV·이벤트 관련 문자 안내를 받겠습니다.</label></div>
+      <div class="check"><input type="checkbox" id="call"><label for="call">[선택] 혜택 및 행사 관련 전화 안내를 받겠습니다.</label></div>
+      <div class="detail">선택 동의 시 성명·연락처·통신사 정보를 혜택/행사 안내 목적으로 동의 철회 시 또는 동의일로부터 최대 2년간 이용합니다. 선택 동의하지 않아도 무료나눔 참여에는 불이익이 없습니다.</div>
+    </div>
+
+    <div id="connectionWarn" class="warn" style="display:none">등록 서버 설정을 확인하지 못했습니다. 직원에게 문의해주세요.</div>
+    <div class="card">
+      <button class="btn" id="submitBtn">등록하기</button>
+      <p class="muted">등록 완료 화면을 직원에게 보여주시면 가정용 충전기를 수령하실 수 있습니다.</p>
+      <p class="muted">개인정보 처리 관련 문의: 휴대폰365아울렛 제천점 · 043-644-8226</p>
+    </div>
+  </div>
+
+  <div id="success" class="card status">
+    <div class="icon">✅</div><h2>등록 완료</h2>
+    <p id="successMsg">직원에게 이 화면을 보여주세요.</p>
+  </div>
+  <div id="duplicate" class="card status">
+    <div class="icon">📌</div><h2>이미 등록된 번호입니다</h2>
+    <p id="duplicateMsg">직원에게 이 화면을 보여주세요.</p>
+  </div>
+
+  <div class="footer">휴대폰365아울렛 제천점 · 충북 제천시 청전대로 159</div>
+</div>
+
+<script>
+const BACKEND_URL='https://script.google.com/macros/s/AKfycbzRLSj8BJ8G6UjRnt1OYPbckMsZXEtNzjQ_728hABBDTpff3oN2x3dIZLReAZQE7K34zw/exec';
+const params=new URLSearchParams(location.search);
+const campaign=params.get('campaign')||'당근 충전기 나눔';
+const source=params.get('source')||'당근';
+document.getElementById('campaignLabel').textContent=campaign+' · '+source;
+let activeCallback='';
+let activeTimer=null;
+
+function normalizePhone(v){ return String(v||'').replace(/\D/g,''); }
+
+function showStatus(id,msg){
+  document.getElementById('formArea').style.display='none';
+  document.getElementById(id).style.display='block';
+  const target=document.getElementById(id==='success'?'successMsg':'duplicateMsg');
+  if(target&&msg)target.textContent=msg;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetSubmitButton(){
+  const b=document.getElementById('submitBtn');
+  b.disabled=false;
+  b.textContent='등록하기';
+}
+
+function cleanupJsonp(callbackName, scriptEl){
+  if(activeTimer){ clearTimeout(activeTimer); activeTimer=null; }
+  if(scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+  try{ delete window[callbackName]; }catch(e){ window[callbackName]=undefined; }
+  activeCallback='';
+}
+
+function submitByJsonp(payload){
+  const callbackName='phone365_cb_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  activeCallback=callbackName;
+
+  const url=new URL(BACKEND_URL);
+  url.searchParams.set('action','register');
+  url.searchParams.set('callback',callbackName);
+  Object.entries(payload).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+
+  const script=document.createElement('script');
+  script.src=url.toString();
+  script.async=true;
+
+  window[callbackName]=function(r){
+    cleanupJsonp(callbackName,script);
+    resetSubmitButton();
+    r=r||{};
+    if(r.ok){
+      showStatus('success',r.message||'등록이 완료되었습니다. 직원에게 이 화면을 보여주세요.');
+    }else if(r.duplicate){
+      showStatus('duplicate',r.message||'이미 등록된 번호입니다. 직원에게 이 화면을 보여주세요.');
+    }else{
+      alert(r.message||'등록하지 못했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  script.onerror=function(){
+    cleanupJsonp(callbackName,script);
+    resetSubmitButton();
+    alert('등록 서버에 연결하지 못했습니다. 직원에게 문의해주세요.');
+  };
+
+  document.body.appendChild(script);
+
+  activeTimer=setTimeout(function(){
+    if(activeCallback!==callbackName)return;
+    cleanupJsonp(callbackName,script);
+    resetSubmitButton();
+    alert('등록 서버 응답이 없습니다. Apps Script가 최신 코드로 배포되었는지 확인해주세요.');
+  },15000);
+}
+
+document.getElementById('submitBtn').addEventListener('click',function(){
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const carrier=document.getElementById('carrier').value;
+  const privacy=document.getElementById('privacy').checked;
+  const sms=document.getElementById('sms').checked;
+  const call=document.getElementById('call').checked;
+
+  if(!name)return alert('성함을 입력해주세요.');
+  if(!/^01\d{8,9}$/.test(normalizePhone(phone)))return alert('휴대전화번호를 정확히 입력해주세요.');
+  if(!privacy)return alert('필수 개인정보 수집·이용 동의가 필요합니다.');
+
+  const b=document.getElementById('submitBtn');
+  b.disabled=true;
+  b.textContent='등록 중...';
+
+  submitByJsonp({
+    name:name,
+    phone:phone,
+    carrier:carrier,
+    campaign:campaign,
+    source:source,
+    privacyConsent:privacy?'Y':'N',
+    smsConsent:sms?'Y':'N',
+    callConsent:call?'Y':'N'
+  });
+});
+</script>
+</body>
+</html>
